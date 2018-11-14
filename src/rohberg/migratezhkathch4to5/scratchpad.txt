@@ -1,0 +1,8 @@
+XXcatalog-query =
+    {'path': {'query': ('/www.zh.kath.ch/oekumene', '/www.zh.kath.ch/news/news-archiv'), 'depth': 5},
+     'modified': {'query': '2007/01/01', 'range': 'min'}}
+
+blueprints:
+
+[workflowupdater]
+blueprint = plone.app.transmogrifier.workflowupdater
