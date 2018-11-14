@@ -46,6 +46,7 @@ setup(
         'z3c.jbot',
         'mr.migrator',
         'collective.jsonmigrator',
+        'transmogrify.dexterity',
     ],
     extras_require={
         'test': [
