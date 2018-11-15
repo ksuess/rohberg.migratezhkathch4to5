@@ -18,7 +18,8 @@ from zope.interface import implements
 from zope.interface import classProvides
 
 import pkg_resources
-
+import logging
+logger = logging.getLogger("zhkathch transmogrifier")
 
 try:
     pkg_resources.get_distribution('plone.app.contenttypes')
@@ -149,7 +150,15 @@ class LeftOvers(object):
 
             # # Tags
             # if item.get('subject', False):
-            #     obj.subject = item['subject']
+            #     obj.subjects = item['subject']
+
+            # pagetype
+            if '/news' in item[pathkey]:
+                obj.pagetype = "Beitrag"
+
+            if item.get('description', False):
+                obj.description = item['description']
+                obj.beschreibung_themenseite = item['description']
 
             yield item
 
