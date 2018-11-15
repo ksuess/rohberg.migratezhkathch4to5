@@ -72,7 +72,10 @@
 
     <utility
         component=".blueprints.LeftOvers"
-        name="rohberg.migratezhkathch4to5.leftovers"
-        />
+        name="rohberg.migratezhkathch4to5.leftovers"/>
+
+    <utility
+        component=".blueprints.SetAndFixKnownDates"
+        name="rohberg.migratezhkathch4to5.setdates"/>
 
 </configure>
