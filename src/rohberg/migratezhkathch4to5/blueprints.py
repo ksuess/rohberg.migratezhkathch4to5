@@ -1,10 +1,15 @@
 """Define custom blueprints for zhkathch."""
-from zope.interface import implements
-from zope.interface import classProvides
+
+from DateTime import DateTime
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.utils import Condition
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
+from plone import api
+from plone.api.exc import InvalidParameterError
+from zope.interface import implements
+from zope.interface import classProvides
 
 
 class LeftOvers(object):
@@ -38,8 +43,6 @@ class LeftOvers(object):
         """Iter."""
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
-            propertieskey = self.propertieskey(*item.keys())[0]
-
             if not pathkey:
                 # not enough info
                 yield item
@@ -57,3 +60,5 @@ class LeftOvers(object):
             # Tags
             if item.get('subject', False):
                 obj.subject = item['subject']
+
+            yield item
