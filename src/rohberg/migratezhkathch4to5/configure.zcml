@@ -78,4 +78,8 @@
         component=".blueprints.SetAndFixKnownDates"
         name="rohberg.migratezhkathch4to5.setdates"/>
 
+    <utility
+        component=".blueprints.PositionInParentUpdater"
+        name="rohberg.migratezhkathch4to5.positioninparentupdater"/>
+
 </configure>
