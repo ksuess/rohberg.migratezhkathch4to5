@@ -55,7 +55,6 @@
         configuration="pipelines/migratezhkathch4to5.cfg"
         />
 
-
     <transmogrifier:registerConfig
         name="exampleconfig"
         title="Example empty pipeline configuration"
@@ -69,6 +68,7 @@
         description="This is an example pipeline configuration"
         configuration="pipelines/catalogzhkathch.cfg"
         />
+
 
     <utility
         component=".blueprints.LeftOvers"

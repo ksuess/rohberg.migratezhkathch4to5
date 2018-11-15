@@ -47,6 +47,7 @@ setup(
         'mr.migrator',
         'collective.jsonmigrator',
         'transmogrify.dexterity',
+        'ftw.blueprints',
     ],
     extras_require={
         'test': [

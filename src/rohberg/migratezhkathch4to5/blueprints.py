@@ -147,9 +147,9 @@ class LeftOvers(object):
                 yield item
                 continue
 
-            # Tags
-            if item.get('subject', False):
-                obj.subject = item['subject']
+            # # Tags
+            # if item.get('subject', False):
+            #     obj.subject = item['subject']
 
             yield item
 
