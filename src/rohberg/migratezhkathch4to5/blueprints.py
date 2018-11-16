@@ -149,6 +149,7 @@ class LeftOvers(object):
                 continue
 
             # # Tags
+            # # siehe ftw.blueprints.typefieldmapper
             # if item.get('subject', False):
             #     obj.subjects = item['subject']
 
@@ -156,9 +157,13 @@ class LeftOvers(object):
             if '/news' in item[pathkey]:
                 obj.pagetype = "Beitrag"
 
+            # description
             if item.get('description', False):
                 obj.description = item['description']
                 obj.beschreibung_themenseite = item['description']
+
+            if item['_type'] == "zhkathpage":
+                obj.teaserimage_anzeigen = True
 
             yield item
 
