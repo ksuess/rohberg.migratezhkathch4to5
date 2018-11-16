@@ -6,3 +6,53 @@ blueprints:
 
 [workflowupdater]
 blueprint = plone.app.transmogrifier.workflowupdater
+
+
+[convertsectionsintofolders]
+blueprint = collective.transmogrifier.sections.inserter
+key = string:_type
+value = string:Folder
+condition = python:item['_type'] == 'Seccio'
+
+
+[datesupdate]
+blueprint = plone.app.transmogrifier.datesupdater
+modification-key = modified
+effective-key = show_date
+expiration-key = hide_date
+
+
+
+condition = python:(item['_workflow_history'] and list(item['_workflow_history'].values())[0][-1]['review_state'])=='private'
+
+
+berechne Wert in Package-Methode
+[decimal_converter]
+blueprint = collective.transmogrifier.sections.inserter
+key = string:milestones
+value = python:modules['collective'].simplemanagement.set_milestones(item['milestones'])
+condition = python:item.get('milestones', None)
+
+
+[typefieldmapper]
+blueprint = ftw.blueprints.typefieldmapper
+mapping = python: {
+        'News Item':  ('zhkathpage', {}),
+    }
+
+
+catalog-query =
+    {'Subject': ('00_1_Startseite', '00_Aktuell'),
+    'created': {'query': '2018/07/01', 'range': 'min'},
+    'expired': {'query': '2019/01/01', 'range': 'max'},
+    'portal_type': ['News Item', 'Image'],
+    'path': {'query': '/www.zh.kath.ch/news/', 'depth': 10},
+    }
+
+catalog-query =
+    {
+    'created': {'query': '2017/01/01', 'range': 'min'},
+    'expired': {'query': '2019/01/01', 'range': 'max'},
+    'portal_type': ['News Item', 'Image'],
+    'path': {'query': '/www.zh.kath.ch/news/', 'depth': 10},
+    }
