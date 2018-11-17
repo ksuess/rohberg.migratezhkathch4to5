@@ -56,6 +56,13 @@
         />
 
     <transmogrifier:registerConfig
+        name="wordpressimport"
+        title="000 zhkath Wordpress-Import Blog-Posts"
+        description="Import WXR"
+        configuration="pipelines/wordpress.cfg"
+        />
+
+    <transmogrifier:registerConfig
         name="exampleconfig"
         title="Example empty pipeline configuration"
         description="This is an example pipeline configuration"
@@ -73,6 +80,10 @@
     <utility
         component=".blueprints.LeftOvers"
         name="rohberg.migratezhkathch4to5.leftovers"/>
+
+    <utility
+        component=".blueprints.LeftOversWordpress"
+        name="rohberg.migratezhkathch4to5.leftoverswordpress"/>
 
     <utility
         component=".blueprints.SetAndFixKnownDates"

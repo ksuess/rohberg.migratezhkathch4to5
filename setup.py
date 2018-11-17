@@ -48,7 +48,6 @@ setup(
         'collective.jsonmigrator',
         'transmogrify.dexterity',
         'ftw.blueprints',
-        'transmogrify.wordpress',
     ],
     extras_require={
         'test': [

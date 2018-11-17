@@ -168,6 +168,36 @@ class LeftOvers(object):
             yield item
 
 
+class LeftOversWordpress(LeftOvers):
+    """Set some left overs."""
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __iter__(self):
+        """Iter."""
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            if not pathkey:
+                # not enough info
+                yield item
+                continue
+
+            obj = \
+                self.context.unrestrictedTraverse(
+                    str(item[pathkey]).lstrip('/'), None)
+
+            if obj is None:
+                # path doesn't exist
+                yield item
+                continue
+
+            # Tags
+            logger.info(u"leftoverswordpress: subject {}".format(item.get('subject', False)))
+            if item.get('subject', False):
+                obj.setSubject(item['subject'])
+
+
 ANNOTATION_KEY = 'ftw.blueprints-position'
 
 class PositionInParentUpdater(object):
