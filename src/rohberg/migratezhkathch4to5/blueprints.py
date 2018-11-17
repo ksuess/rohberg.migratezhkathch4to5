@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """Define custom blueprints for zhkathch."""
 
 from Acquisition import aq_inner
 from Acquisition import aq_parent
+from bs4 import BeautifulSoup
 from DateTime import DateTime
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
@@ -10,7 +12,10 @@ from collective.transmogrifier.utils import defaultMatcher
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import traverse
+from io import BytesIO
+from os.path  import basename
 from operator import itemgetter
+from PIL import Image
 from plone import api
 from plone.api.exc import InvalidParameterError
 from zope.annotation.interfaces import IAnnotations
@@ -18,6 +23,7 @@ from zope.interface import implements
 from zope.interface import classProvides
 
 import pkg_resources
+import requests
 import logging
 logger = logging.getLogger("zhkathch transmogrifier")
 
@@ -193,9 +199,88 @@ class LeftOversWordpress(LeftOvers):
                 continue
 
             # Tags
-            logger.info(u"leftoverswordpress: subject {}".format(item.get('subject', False)))
+            # logger.info(u"leftoverswordpress: subject {}".format(item.get('subject', False)))
             if item.get('subject', False):
                 obj.setSubject(item['subject'])
+
+            # pagetype
+            obj.pagetype = "Meinung"
+
+def getImage(author_login=None):
+    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
+    headers = {'User-Agent': user_agent}
+    if author_login:
+        resp = requests.get("https://blog.zhkath.ch/author/{}/".format(author_login), headers=headers)
+        soup = BeautifulSoup(resp.content)
+        for img in soup.select("#author-info img"):
+            src = img["src"]
+            response = requests.get(src, headers=headers)
+            return response.content
+            img = Image.open(BytesIO(response.content))
+            # img.save(basename(src))
+            return img
+    return None
+
+
+class BlogauthorConstructor(object):
+    """Set some left overs."""
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        """Initialize class."""
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+        if 'properties-key' in options:
+            propertieskeys = options['properties-key'].splitlines()
+        else:
+            propertieskeys = \
+                defaultKeys(options['blueprint'], name, 'properties')
+        self.propertieskey = Matcher(*propertieskeys)
+
+    def __iter__(self):
+        """Iter."""
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            if not pathkey:
+                # not enough info
+                yield item
+                continue
+
+            obj = \
+                self.context.unrestrictedTraverse(
+                    str(item[pathkey]).lstrip('/'), None)
+
+            if obj is None:
+                # path doesn't exist
+                yield item
+                continue
+
+            if item.get('author_login', False):
+                blogauthor = {}
+                blogauthor['_type'] = 'blogauthor'
+                blogauthor['portal_type'] = 'blogauthor'
+                blogauthor['_path'] = item['author_login']
+                blogauthor['title'] = item.get('author_display_name', u"Katholische Kirche im Kanton Zürich")
+                # logger.info(u"BlogauthorConstructor yield blogauthor {}".format(blogauthor))
+                # TODO blogauthor: get image
+                img = getImage(item['author_login'])
+                blogauthor['image'] = img
+                yield blogauthor
+
+            yield item
+
 
 
 ANNOTATION_KEY = 'ftw.blueprints-position'

@@ -48,6 +48,7 @@ setup(
         'collective.jsonmigrator',
         'transmogrify.dexterity',
         'ftw.blueprints',
+        'beautifulsoup4',
     ],
     extras_require={
         'test': [

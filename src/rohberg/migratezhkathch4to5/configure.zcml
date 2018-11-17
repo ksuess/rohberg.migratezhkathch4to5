@@ -86,6 +86,10 @@
         name="rohberg.migratezhkathch4to5.leftoverswordpress"/>
 
     <utility
+        component=".blueprints.BlogauthorConstructor"
+        name="rohberg.migratezhkathch4to5.addblogauthors"/>
+
+    <utility
         component=".blueprints.SetAndFixKnownDates"
         name="rohberg.migratezhkathch4to5.setdates"/>
 
