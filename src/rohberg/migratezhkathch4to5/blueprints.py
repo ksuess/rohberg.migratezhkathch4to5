@@ -18,6 +18,7 @@ from operator import itemgetter
 from PIL import Image
 from plone import api
 from plone.api.exc import InvalidParameterError
+from plone.namedfile.file import NamedBlobImage
 from zope.annotation.interfaces import IAnnotations
 from zope.interface import implements
 from zope.interface import classProvides
@@ -168,9 +169,6 @@ class LeftOvers(object):
                 obj.description = item['description']
                 obj.beschreibung_themenseite = item['description']
 
-            if item['_type'] == "zhkathpage":
-                obj.teaserimage_anzeigen = True
-
             yield item
 
 
@@ -203,27 +201,65 @@ class LeftOversWordpress(LeftOvers):
             if item.get('subject', False):
                 obj.setSubject(item['subject'])
 
-            # pagetype
-            obj.pagetype = "Meinung"
+            if item.get('_type', item.get('portal_type', None)) == "zhkathpage":
+                # pagetype
+                obj.pagetype = "Meinung"
 
-def getImage(author_login=None):
+                # Teaserimage mitnehmen und anzeigen
+                imgdata = getImage(item['_orig_url'],
+                    selector="img.wp-post-image")
+                if imgdata:
+                    # # crop image
+                    # img = Image.open(BytesIO(imgdata))
+                    # x,y = img.size
+                    # width = 4*y/3 # Seitenformat 4:3
+                    # offset = (x-width)/2
+                    # coords = (offset,0,x-offset,y)
+                    # cropped_img = img.crop(coords)
+                    # try:
+                    #     cropped_img.save("cropped.jpg")
+                    #     cropped_img = Image.open("cropped.jpg")
+                    #     imagedata = cropped_img.tobytes()
+                    #
+                    #     img = NamedBlobImage(imgdata)  #, filename="")
+                    #     print(item['_orig_url'])
+                    #     print(img.getImageSize())
+                    #
+                    #     obj.image = img
+                    # except Exception as e:
+                    #     pass
+
+                    img = NamedBlobImage(imgdata)  #, filename="")
+                    print(item['_orig_url'])
+                    print(img.getImageSize())
+
+                    obj.image = img
+
+
+                obj.teaserimage_anzeigen = True
+
+
+def getImage(url=None, selector=".myimage"):
+    """Get image content for given url and selector."""
+
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
     headers = {'User-Agent': user_agent}
-    if author_login:
-        resp = requests.get("https://blog.zhkath.ch/author/{}/".format(author_login), headers=headers)
+    if True:
+        resp = requests.get(url, headers=headers)
         soup = BeautifulSoup(resp.content)
-        for img in soup.select("#author-info img"):
+        for img in soup.select(selector):
             src = img["src"]
             response = requests.get(src, headers=headers)
             return response.content
-            img = Image.open(BytesIO(response.content))
+
+            # img = Image.open(BytesIO(response.content))
             # img.save(basename(src))
             return img
     return None
 
 
 class BlogauthorConstructor(object):
-    """Set some left overs."""
+    """."""
 
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -275,8 +311,9 @@ class BlogauthorConstructor(object):
                 blogauthor['title'] = item.get('author_display_name', u"Katholische Kirche im Kanton Zürich")
                 # logger.info(u"BlogauthorConstructor yield blogauthor {}".format(blogauthor))
                 # TODO blogauthor: get image
-                img = getImage(item['author_login'])
+                img = getImage("https://blog.zhkath.ch/author/{}/".format(item['author_login']), selector="#author-info img")
                 blogauthor['image'] = img
+                logger.info("*** blogauthor {}".format(blogauthor['_path']))
                 yield blogauthor
 
             yield item
