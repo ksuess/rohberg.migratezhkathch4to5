@@ -13,6 +13,7 @@ from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import traverse
 from io import BytesIO
+from io import StringIO
 from os.path  import basename
 from operator import itemgetter
 from PIL import Image
@@ -201,6 +202,13 @@ class LeftOversWordpress(LeftOvers):
             if item.get('subject', False):
                 obj.setSubject(item['subject'])
 
+            if 'modification_date' in item:
+                obj.setModificationDate(item['modification_date'])
+            if 'effectiveDate' in item:
+                obj.setEffectiveDate(item['effectiveDate'])
+            # if 'expirationDate' in item:
+            #     obj.setExpirationDate(item['expirationDate'])
+
             if item.get('_type', item.get('portal_type', None)) == "zhkathpage":
                 # pagetype
                 obj.pagetype = "Meinung"
@@ -209,31 +217,31 @@ class LeftOversWordpress(LeftOvers):
                 imgdata = getImage(item['_orig_url'],
                     selector="img.wp-post-image")
                 if imgdata:
-                    # # crop image
-                    # img = Image.open(BytesIO(imgdata))
-                    # x,y = img.size
-                    # width = 4*y/3 # Seitenformat 4:3
-                    # offset = (x-width)/2
-                    # coords = (offset,0,x-offset,y)
-                    # cropped_img = img.crop(coords)
-                    # try:
-                    #     cropped_img.save("cropped.jpg")
-                    #     cropped_img = Image.open("cropped.jpg")
-                    #     imagedata = cropped_img.tobytes()
-                    #
-                    #     img = NamedBlobImage(imgdata)  #, filename="")
-                    #     print(item['_orig_url'])
-                    #     print(img.getImageSize())
-                    #
-                    #     obj.image = img
-                    # except Exception as e:
-                    #     pass
+                    # crop image
+                    img = Image.open(BytesIO(imgdata))
+                    x,y = img.size
+                    width = 4*y/3 # Seitenformat 4:3
+                    offset = (x-width)/2
+                    coords = (offset,0,x-offset,y)
+                    cropped_img = img.crop(coords)
+                    try:
+                        out = BytesIO()
+                        cropped_img.save(out, format='JPEG')
+                        out.seek(0)
+                        namedblobimage = NamedBlobImage(data=out.getvalue())
+                        out.close()
 
-                    img = NamedBlobImage(imgdata)  #, filename="")
-                    print(item['_orig_url'])
-                    print(img.getImageSize())
+                        print("*** teaserimage: item['_orig_url'] {}".format(item['_orig_url']))
+                        obj.image = namedblobimage
+                    except Exception as e:
+                        pass
 
-                    obj.image = img
+                    # img = NamedBlobImage(imgdata)  #, filename="")
+                    # print(item['_orig_url'])
+                    # print(img.getImageSize())
+                    # obj.image = img
+                else:
+                    print("*** teaserimage not found: item['_orig_url'] {}".format(item['_orig_url']))
 
 
                 obj.teaserimage_anzeigen = True
@@ -244,8 +252,8 @@ def getImage(url=None, selector=".myimage"):
 
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
     headers = {'User-Agent': user_agent}
-    if True:
-        resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers)
+    try:
         soup = BeautifulSoup(resp.content)
         for img in soup.select(selector):
             src = img["src"]
@@ -255,8 +263,32 @@ def getImage(url=None, selector=".myimage"):
             # img = Image.open(BytesIO(response.content))
             # img.save(basename(src))
             return img
-    return None
+    except Exception as e:
+        import pdb; pdb.set_trace()
 
+def getMetainfoAuthor(author_login):
+    """Return dictionary with companyposition, bio."""
+
+    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
+    headers = {'User-Agent': user_agent}
+    url = "https://blog.zhkath.ch/author/{}/".format(author_login)
+    resp = requests.get(url, headers=headers)
+    try:
+        soup = BeautifulSoup(resp.content)
+        selector = "span.author-organisation"
+        pick = soup.select(selector)
+        companyposition = len(pick) > 0 and pick[0].contents[0].strip(", ") or u""
+
+        selector = "#author-info p"
+        pick = soup.select(selector)
+        bio = len(pick)>1 and pick[1].contents[0] or u""
+
+        print(companyposition)
+        print(bio)
+        return {'companyposition': companyposition,
+            'bio': bio}
+    except Exception as e:
+        import pdb; pdb.set_trace()
 
 class BlogauthorConstructor(object):
     """."""
@@ -312,7 +344,11 @@ class BlogauthorConstructor(object):
                 # logger.info(u"BlogauthorConstructor yield blogauthor {}".format(blogauthor))
                 # TODO blogauthor: get image
                 img = getImage("https://blog.zhkath.ch/author/{}/".format(item['author_login']), selector="#author-info img")
+                # TODO filename
                 blogauthor['image'] = img
+                metainfo = getMetainfoAuthor(item['author_login'])
+                blogauthor['companyposition'] = u"" + metainfo['companyposition']
+                blogauthor['description'] = u"" + metainfo['bio']
                 logger.info("*** blogauthor {}".format(blogauthor['_path']))
                 yield blogauthor
 
