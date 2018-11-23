@@ -214,7 +214,7 @@ class LeftOversWordpress(LeftOvers):
                 obj.pagetype = "Meinung"
 
                 # Teaserimage mitnehmen und anzeigen
-                imgdata = getImage(item['_orig_url'],
+                imgdata = getImageData(item['_orig_url'],
                     selector="img.wp-post-image")
                 if imgdata:
                     # crop image
@@ -228,7 +228,8 @@ class LeftOversWordpress(LeftOvers):
                         out = BytesIO()
                         cropped_img.save(out, format='JPEG')
                         out.seek(0)
-                        namedblobimage = NamedBlobImage(data=out.getvalue())
+                        namedblobimage = NamedBlobImage(data=out.getvalue(),
+                            filename=u"teaserimage-blog.jpg")  #, title="Teaserimage Blog")
                         out.close()
 
                         print("*** teaserimage: item['_orig_url'] {}".format(item['_orig_url']))
@@ -247,7 +248,7 @@ class LeftOversWordpress(LeftOvers):
                 obj.teaserimage_anzeigen = True
 
 
-def getImage(url=None, selector=".myimage"):
+def getImageData(url=None, selector=".myimage"):
     """Get image content for given url and selector."""
 
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
@@ -343,9 +344,12 @@ class BlogauthorConstructor(object):
                 blogauthor['title'] = item.get('author_display_name', u"Katholische Kirche im Kanton Zürich")
                 # logger.info(u"BlogauthorConstructor yield blogauthor {}".format(blogauthor))
                 # TODO blogauthor: get image
-                img = getImage("https://blog.zhkath.ch/author/{}/".format(item['author_login']), selector="#author-info img")
+                imagedata = getImageData("https://blog.zhkath.ch/author/{}/".format(item['author_login']), selector="#author-info img")
                 # TODO filename
-                blogauthor['image'] = img
+                dct = {
+                    'data': imagedata,
+                    'filename': u'{}.jpg'.format(item['author_login'])}
+                blogauthor['image'] = dct
                 metainfo = getMetainfoAuthor(item['author_login'])
                 blogauthor['companyposition'] = u"" + metainfo['companyposition']
                 blogauthor['description'] = u"" + metainfo['bio']
