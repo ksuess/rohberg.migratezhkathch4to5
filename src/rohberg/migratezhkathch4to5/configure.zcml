@@ -50,9 +50,16 @@
 
     <transmogrifier:registerConfig
         name="migratezhkathch4to5"
-        title="001 zhkathch pipeline configuration"
+        title="002 zhkathch pipeline configuration for News"
         description="This is a pipeline configuration for migration zhkathch Plone4 to Plone5 with custom content types."
         configuration="pipelines/migratezhkathch4to5.cfg"
+        />
+
+    <transmogrifier:registerConfig
+        name="migratezhkathch4to5protokolle"
+        title="001 zhkathch pipeline configuration for Protokolle"
+        description="This is a pipeline configuration for migration zhkathch Plone4 to Plone5 with custom content types."
+        configuration="pipelines/migratezhkathch4to5_Protokolle.cfg"
         />
 
     <transmogrifier:registerConfig
@@ -77,17 +84,7 @@
         />
 
 
-    <utility
-        component=".blueprints.LeftOvers"
-        name="rohberg.migratezhkathch4to5.leftovers"/>
-
-    <utility
-        component=".blueprints.LeftOversWordpress"
-        name="rohberg.migratezhkathch4to5.leftoverswordpress"/>
-
-    <utility
-        component=".blueprints.BlogauthorConstructor"
-        name="rohberg.migratezhkathch4to5.addblogauthors"/>
+    <!-- News and Protokolle-->
 
     <utility
         component=".blueprints.SetAndFixKnownDates"
@@ -96,5 +93,31 @@
     <utility
         component=".blueprints.PositionInParentUpdater"
         name="rohberg.migratezhkathch4to5.positioninparentupdater"/>
+
+    <!-- News-->
+    <utility
+        component=".blueprints.LeftOvers"
+        name="rohberg.migratezhkathch4to5.leftovers"/>
+
+
+    <!-- Protokolle -->
+    <utility
+        component=".blueprints.LeftOversProtokolle"
+        name="rohberg.migratezhkathch4to5.leftoversprotokolle"/>
+
+    <utility
+        component=".blueprints.Typefieldmapperzhkathch"
+        name="rohberg.migratezhkathch4to5.typefieldmapperzhkathch"/>
+
+
+    <!-- Wordpress -->
+    <utility
+        component=".blueprints.LeftOversWordpress"
+        name="rohberg.migratezhkathch4to5.leftoverswordpress"/>
+
+    <utility
+        component=".blueprints.BlogauthorConstructor"
+        name="rohberg.migratezhkathch4to5.addblogauthors"/>
+
 
 </configure>

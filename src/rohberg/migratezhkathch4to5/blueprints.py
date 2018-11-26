@@ -173,6 +173,71 @@ class LeftOvers(object):
             yield item
 
 
+class LeftOversProtokolle(object):
+    """Set some left overs."""
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        """Initialize class."""
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+        if 'properties-key' in options:
+            propertieskeys = options['properties-key'].splitlines()
+        else:
+            propertieskeys = \
+                defaultKeys(options['blueprint'], name, 'properties')
+        self.propertieskey = Matcher(*propertieskeys)
+
+    def __iter__(self):
+        """Iter."""
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            if not pathkey:
+                # not enough info
+                yield item
+                continue
+
+            obj = \
+                self.context.unrestrictedTraverse(
+                    str(item[pathkey]).lstrip('/'), None)
+
+            if obj is None:
+                # path doesn't exist
+                yield item
+                continue
+
+            logger.info("item[pathkey] {}".format(item[pathkey]))
+            # # Tags
+            # # siehe ftw.blueprints.typefieldmapper
+            # if item.get('subject', False):
+            #     obj.subjects = item['subject']
+
+            # # pagetype
+            # if '/news' in item[pathkey]:
+            #     obj.pagetype = "Beitrag"
+
+            # description
+            if item.get('description', False):
+                obj.description = item['description']
+                obj.beschreibung_themenseite = item['description']
+
+            # Teaserimage immer anzeigen
+            obj.teaserimage_anzeigen = True
+
+            yield item
+
 class LeftOversWordpress(LeftOvers):
     """Set some left overs."""
 
@@ -395,7 +460,6 @@ class PositionInParentUpdater(object):
         steps and will reorder already migrated siblings correctly because we
         have stored the position from the source installation.
         """
-        print(position)
         if position is not None:
             self.store_position_for_obj(obj, position)
         parent = aq_parent(aq_inner(obj))
@@ -418,3 +482,71 @@ class PositionInParentUpdater(object):
 
         ordered_children = sorted(container.objectItems(), key=get_position_from_annotations)
         return map(itemgetter(0), ordered_children)
+
+
+class Typefieldmapperzhkathch(object):
+    """Map types and their fields to new types and new fields.
+    """
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.previous = previous
+        self.typekey = defaultMatcher(options, 'type-key', name, 'type')
+
+    def __iter__(self):
+        # Folder mit nur Files: Folder to Folder, File to File
+        # sonst: Folder to zhkathpage, File to zhkathpage
+        filefolder = [
+            u'/organisation/rechtsgrundlagen',
+            u'/organisation/synodalrat/geschaefte',
+            u'/organisation/synode',
+            u'/organisation/rekurskommission',
+            u'/service/publikationen/personalwesen/handbuch',
+            u'/service/publikationen/jahresberichte/archiv',
+            ]
+        # mixedfolder = ['/ethikbeitraege/',]
+        for item in self.previous:
+            keys = item.keys()
+            typekey = self.typekey(*keys)[0]
+
+            if not typekey:
+                yield item
+                continue
+
+            old_type = item[typekey]
+
+            print("*** Typefieldmapperzhkathch {} {}".format(old_type, item["_path"]))
+            is_filefolder = False
+            for filefolderpath in filefolder:
+                # print(item['_path'].startswith(filefolderpath))
+                if item['_path'].startswith(filefolderpath):
+                    is_filefolder = True
+                    break
+            print("is_filefolder {}".format(is_filefolder))
+            if not is_filefolder:
+                if old_type == 'Folder':
+                    item[typekey] = 'zhkathpage'
+                    # TODO: no yield wenn der Folder eine default page hat
+                    if item.get('_defaultpage', False):
+                        # continue
+                        pass
+                elif old_type == 'File':
+                    item[typekey] = 'zhkathpage'
+                    item['pagetype'] = 'Publikation'
+                elif old_type == 'Link':
+                    item[typekey] = 'zhkathpage'
+                    item['link_url'] = item['remoteUrl']
+                    item['link_label'] = item['title']
+                # TODO: Wenn default page, dann _path auf den des Parents ändern
+                elif old_type == 'zhkathpage' and item.get('_is_defaultpage', False):
+                    _path = item['_path']
+                    new_path = '/'.join(_path.split('/')[:-1])
+                    new_id = _path.split('/')[-2]
+                    print("new_path {} new_id {}".format(new_path, new_id))
+                    item['_path'] = new_path
+                    item['_id'] = new_id
+
+
+            yield item
