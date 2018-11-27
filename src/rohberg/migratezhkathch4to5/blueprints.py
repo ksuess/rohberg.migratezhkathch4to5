@@ -112,7 +112,7 @@ class SetAndFixKnownDates(object):
 
 
 class LeftOvers(object):
-    """Set some left overs."""
+    """Set some left overs for news."""
 
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -170,6 +170,9 @@ class LeftOvers(object):
                 obj.description = item['description']
                 obj.beschreibung_themenseite = item['description']
 
+            # Teaserimage immer anzeigen
+            obj.teaserimage_anzeigen = True
+            
             yield item
 
 
