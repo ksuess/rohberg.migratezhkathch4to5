@@ -172,7 +172,7 @@ class LeftOvers(object):
 
             # Teaserimage immer anzeigen
             obj.teaserimage_anzeigen = True
-            
+
             yield item
 
 
@@ -322,6 +322,7 @@ def getImageData(url=None, selector=".myimage"):
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:63.0) Gecko/20100101 Firefox/63.0'
     headers = {'User-Agent': user_agent}
     resp = requests.get(url, headers=headers)
+    print("getImageData status {}".format(resp.status_code))
     try:
         soup = BeautifulSoup(resp.content)
         for img in soup.select(selector):
@@ -333,7 +334,8 @@ def getImageData(url=None, selector=".myimage"):
             # img.save(basename(src))
             return img
     except Exception as e:
-        import pdb; pdb.set_trace()
+        print("ERROR getImageData {} {}".format(e, url))
+        # import pdb; pdb.set_trace()
 
 def getMetainfoAuthor(author_login):
     """Return dictionary with companyposition, bio."""
@@ -342,6 +344,7 @@ def getMetainfoAuthor(author_login):
     headers = {'User-Agent': user_agent}
     url = "https://blog.zhkath.ch/author/{}/".format(author_login)
     resp = requests.get(url, headers=headers)
+    print("getMetainfoAuthor status {}".format(resp.status_code))
     try:
         soup = BeautifulSoup(resp.content)
         selector = "span.author-organisation"
@@ -357,7 +360,8 @@ def getMetainfoAuthor(author_login):
         return {'companyposition': companyposition,
             'bio': bio}
     except Exception as e:
-        import pdb; pdb.set_trace()
+        print("ERROR getMetainfoAuthor {} {}".format(e, author_login))
+        # import pdb; pdb.set_trace()
 
 class BlogauthorConstructor(object):
     """."""
@@ -403,7 +407,7 @@ class BlogauthorConstructor(object):
                 # path doesn't exist
                 yield item
                 continue
-
+            # import pdb; pdb.set_trace()
             if item.get('author_login', False):
                 blogauthor = {}
                 blogauthor['_type'] = 'blogauthor'
