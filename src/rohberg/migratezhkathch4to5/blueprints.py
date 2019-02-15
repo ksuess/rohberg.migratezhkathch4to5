@@ -535,6 +535,7 @@ class Typefieldmapperzhkathch(object):
             if not is_filefolder:
                 if old_type == 'Folder':
                     item[typekey] = 'zhkathpage'
+                    item['text'] = u''
                     # TODO: no yield wenn der Folder eine default page hat
                     if item.get('_defaultpage', False):
                         # continue
