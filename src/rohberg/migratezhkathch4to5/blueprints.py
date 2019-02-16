@@ -543,10 +543,12 @@ class Typefieldmapperzhkathch(object):
                 elif old_type == 'File':
                     item[typekey] = 'zhkathpage'
                     item['pagetype'] = 'Publikation'
+                    item['text'] = u''
                 elif old_type == 'Link':
                     item[typekey] = 'zhkathpage'
                     item['link_url'] = item['remoteUrl']
                     item['link_label'] = item['title']
+                    item['text'] = u''
                 # TODO: Wenn default page, dann _path auf den des Parents ändern
                 elif old_type == 'zhkathpage' and item.get('_is_defaultpage', False):
                     _path = item['_path']
