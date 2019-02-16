@@ -432,7 +432,7 @@ class BlogauthorConstructor(object):
                 metainfo = getMetainfoAuthor(item['author_login'])
                 if metainfo:
                     blogauthor['companyposition'] = u'' + metainfo.get('companyposition', u'')
-                blogauthor['description'] = u"" + metainfo['bio']
+                    blogauthor['description'] = u"" + metainfo.get('bio', u'')
                 logger.info("*** blogauthor {}".format(blogauthor['_path']))
                 yield blogauthor
 
