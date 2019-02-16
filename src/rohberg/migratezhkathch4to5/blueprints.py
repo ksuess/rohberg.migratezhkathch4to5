@@ -82,7 +82,7 @@ class SetAndFixKnownDates(object):
                 if obj is None:
                     yield item
                     continue  # object not found
-
+                print("SetAndFixKnownDates")
                 if 'creation_date' in item:
                     # try:
                     #     obj.setCreationDate(item['creation_date'])
@@ -92,8 +92,14 @@ class SetAndFixKnownDates(object):
                     obj.creation_date = item['creation_date']
                 if 'modification_date' in item:
                     obj.setModificationDate(item['modification_date'])
-                if 'effectiveDate' in item:
-                    obj.setEffectiveDate(item['effectiveDate'])
+                effectiveDate = item.get('effectiveDate', None)
+                if effectiveDate and effectiveDate != u"None":
+                    obj.setEffectiveDate(effectiveDate)
+                else:
+                    obj.setEffectiveDate(item.get('modification_date', None))
+                # if item['_path']==u'/organisation/gv/arbeitshilfen/exuperantius/exuperantius-05-oeffentlichkeitsarbeit':
+                #     import pdb; pdb.set_trace()
+                print(item.get('effectiveDate', None) or item.get('modification_date', None))
                 if 'expirationDate' in item:
                     obj.setExpirationDate(item['expirationDate'])
 
@@ -362,6 +368,7 @@ def getMetainfoAuthor(author_login):
     except Exception as e:
         print("ERROR getMetainfoAuthor {} {}".format(e, author_login))
         # import pdb; pdb.set_trace()
+        return None
 
 class BlogauthorConstructor(object):
     """."""
@@ -423,7 +430,8 @@ class BlogauthorConstructor(object):
                     'filename': u'{}.jpg'.format(item['author_login'])}
                 blogauthor['image'] = dct
                 metainfo = getMetainfoAuthor(item['author_login'])
-                blogauthor['companyposition'] = u"" + metainfo['companyposition']
+                if metainfo:
+                    blogauthor['companyposition'] = u'' + metainfo.get('companyposition', u'')
                 blogauthor['description'] = u"" + metainfo['bio']
                 logger.info("*** blogauthor {}".format(blogauthor['_path']))
                 yield blogauthor
