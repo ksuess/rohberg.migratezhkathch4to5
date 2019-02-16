@@ -524,7 +524,7 @@ class Typefieldmapperzhkathch(object):
 
             old_type = item[typekey]
 
-            print("*** Typefieldmapperzhkathch {} {}".format(old_type, item["_path"]))
+            print("*** Typefieldmapperzhkathch old_type: {} _path: {}".format(old_type, item["_path"]))
             is_filefolder = False
             for filefolderpath in filefolder:
                 # print(item['_path'].startswith(filefolderpath))
