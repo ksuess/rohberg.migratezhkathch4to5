@@ -50,35 +50,36 @@
 
     <transmogrifier:registerConfig
         name="migratezhkathch4to5"
-        title="002 zhkathch pipeline configuration for News"
+        title="Rohberg: 002 zhkathch pipeline configuration for News"
         description="This is a pipeline configuration for migration zhkathch Plone4 to Plone5 with custom content types."
         configuration="pipelines/migratezhkathch4to5.cfg"
         />
 
     <transmogrifier:registerConfig
-        name="migratezhkathch4to5protokolle"
-        title="001 zhkathch pipeline configuration for Protokolle"
+        name="rohberg-migratezhkathch4to5protokolle"
+        title="Rohberg: 001 zhkathch pipeline configuration for Protokolle"
         description="This is a pipeline configuration for migration zhkathch Plone4 to Plone5 with custom content types."
         configuration="pipelines/migratezhkathch4to5_Protokolle.cfg"
         />
 
     <transmogrifier:registerConfig
-        name="wordpressimport"
+        name="blogzhkathch-wordpressimport"
         title="000 zhkath Wordpress-Import Blog-Posts"
         description="Import WXR"
-        configuration="pipelines/wordpress.cfg"
+        configuration="pipelines/migratezhkathchwordpress.cfg"
         />
 
+
     <transmogrifier:registerConfig
-        name="exampleconfig"
-        title="Example empty pipeline configuration"
+        name="rohberg-exampleconfig"
+        title="Rohberg: Example empty pipeline configuration"
         description="This is an example pipeline configuration"
         configuration="pipelines/example.cfg"
         />
 
     <transmogrifier:registerConfig
         name="pipelines/catalogzhkathch"
-        title="Example pipeline configuration (Migration configuration for querying the catalog of a Plone site)"
+        title="Rohberg: Example pipeline configuration (Migration configuration for querying the catalog of a Plone site)"
         description="This is an example pipeline configuration"
         configuration="pipelines/catalogzhkathch.cfg"
         />

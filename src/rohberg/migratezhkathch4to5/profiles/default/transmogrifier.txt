@@ -1,1 +1,1 @@
-exampleconfig
+rohberg:migratezhkathch4to5/pipelines/migratezhkathchwordpress.cfg
